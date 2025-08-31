@@ -105,9 +105,9 @@ function nextSection() {
     <header class="nav-bar">
       <div id="nav-brand" @click="router.push('/')">iL</div>
       <div class="nav-icons">
-        <i class="material-icons" title="Search">search</i>
-        <i class="material-icons" title="Monitor" @click="router.push('/monitor')">monitor</i>
-        <i class="material-icons" title="Profile">person</i>
+        <i class="material-icons" id="icon-search" title="Search">search</i>
+        <i class="material-icons" id="monitor" title="Monitor" @click="router.push('/monitor')">monitor</i>
+        <i class="material-icons" id="icon-profile" title="Profile">person</i>
       </div>
     </header>
 
@@ -170,12 +170,34 @@ function nextSection() {
 .nav-icons i {
   margin-left: 16px;
   cursor: pointer;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 4px;
   transition: color 0.3s;
 }
 
 .nav-icons i:hover {
   color: green;
 }
+
+.nav-icons i::after {
+ content: '';
+ position: absolute;
+ left: 50%;
+ transform: translateX(-50%);
+ bottom: 0;
+ height: 2px;
+ width: 0;
+ background-color: green;
+ transition: width 0.3s ease-in-out;
+}
+
+#icon-search:hover::after,
+#icon-profile:hover::after,
+#monitor:hover::after {
+  width: 100%;
+}
+
 
 /* MAIN CONTENT */
 .main-content {

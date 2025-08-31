@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import '@/assets/monitor_assets/styles.css'
 
 // Font Awesome
 import '@fortawesome/fontawesome-free/css/all.css';
