@@ -1,8 +1,12 @@
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
+import LeafletMap from "@/views/landing_page/components/LeafletMap.vue";
 import { useRouter } from 'vue-router';
 
+// ==================
+// Content Sections
+// ==================
 interface Content {
   mainTitle: string;
   mainHeading: string;
@@ -43,16 +47,16 @@ const contentSections: Content[] = [
   }
 ];
 
+// ==================
+// Typing Animation
+// ==================
 const router = useRouter();
 const currentIndex = ref(0);
 const currentContent = ref(contentSections[0]);
 const typedTitle = ref('');
 const cursorVisible = ref(false);
-let typingInterval: number | null = null;
+let typingInterval: ReturnType<typeof setInterval> | null = null;
 
-/**
- * Simulates typing animation.
- */
 function startTyping(text: string): Promise<void> {
   return new Promise((resolve) => {
     if (typingInterval) clearInterval(typingInterval);
@@ -69,7 +73,7 @@ function startTyping(text: string): Promise<void> {
         cursorVisible.value = false;
         resolve();
       }
-    }, 160); // **** Typing speed in milliseconds - might adjust later to 180 to reduce the speed
+    }, 160);
   });
 }
 
@@ -83,27 +87,51 @@ async function cycleContent() {
   }
 }
 
-onMounted(() => {
-  cycleContent();
-});
-
-//  ======
-// **** Adjust this to About Page ****
-//  ======
 function nextSection() {
   currentIndex.value = (currentIndex.value + 1) % contentSections.length;
   currentContent.value = contentSections[currentIndex.value];
   startTyping(currentContent.value.mainTitle);
 }
+
+// ==================
+// WebSocket + Map
+// ==================
+const tileLayerUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+interface MarkerData {
+  lat: number;
+  lng: number;
+}
+
+const markers = ref<MarkerData[]>([]);
+
+onMounted(() => {
+  cycleContent();
+
+  const socket = new WebSocket('ws://localhost:8080');  // Replace with your server URL
+
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    console.log('Received data:', data);
+
+    const { lat, lng } = data;
+    markers.value.push({ lat, lng });
+  };
+
+  socket.onclose = () => {
+    console.log('WebSocket connection closed');
+  };
+});
+
+const handleMarkerClick = (marker: MarkerData) => {
+  console.log('Marker clicked:', marker);
+};
 </script>
-
-
 
 <template>
   <div class="app-container">
-    <!-- Navigation Bar -->
     <header class="nav-bar">
-      <div id="nav-brand" @click="router.push('/')">iL</div>
+      <div id="nav-brand" @click="router.push('/')"> </div>
       <div class="nav-icons">
         <i class="material-icons" id="icon-search" title="Search">search</i>
         <i class="material-icons" id="monitor" title="Monitor" @click="router.push('/monitor')">monitor</i>
@@ -111,11 +139,13 @@ function nextSection() {
       </div>
     </header>
 
-    <!-- Main Content -->
     <main class="main-content">
       <section class="text-block">
         <span class="text-block-title">Monitoring Map</span>
-        <h1 class="title">Map <span class="subtitle">at <span>a</span> time</span></h1>
+        <!-- Render map directly -->
+        <div class="map-container">
+          <LeafletMap />
+        </div>
       </section>
 
       <transition name="fade" mode="out-in">
@@ -127,20 +157,18 @@ function nextSection() {
           <h2 class="info-title" v-html="currentContent.infoTitle"></h2>
           <p class="description">{{ currentContent.description }}</p>
 
-          <!-- ***** Adjust to About Page -->
-          <button class="next-button" @click="nextSection">Next</button>
+          <button class="next-button" @click="nextSection">Learn More 🌐</button>
         </section>
       </transition>
+
+
     </main>
 
-    <!-- Footer -->
     <footer class="app-footer">
       <p>&copy; 2025 Illegal Logging Detection. All rights reserved.</p>
     </footer>
   </div>
 </template>
-
-
 
 <style scoped>
   /* LAYOUT */
@@ -156,7 +184,6 @@ function nextSection() {
   display: flex;
   justify-content: space-between;
   padding: 12px 24px;
-  background: #e9f6f9; /*b3c6c9, d5e9ed */
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -212,13 +239,24 @@ function nextSection() {
 
 .text-block {
   flex: 1;
+  height: 500px; /* or 100vh */
+  width: 100%;
   min-width: 250px;
+  position: relative;
 }
 
-.title {
-  font-size: 2rem;
-  font-weight: 600;
+.map-container {
+  height: 400px;
+  width: 100%;
 }
+
+/* Optional: style for your map inside LandingPage */
+.text-block .container-map {
+  margin-top: 1rem;
+  height: 400px; /* you can tweak */
+  width: 100%;
+}
+
 
 .subtitle {
   font-size: 1.3rem;
@@ -236,7 +274,7 @@ function nextSection() {
   font-size: 4.370rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
-  color: #2c3e50; /** 046a1e*/
+  color: #04502e; /**  2c3e50  046a1e*/
 }
 
 .cursor {
@@ -248,7 +286,7 @@ function nextSection() {
 .main-heading {
   font-size: 1.55rem;
   margin: 10px 0;
-  color: #2c3e50; /* 2f2f2f*/
+  color: #2c3e50;
 }
 
 .info-title {
@@ -261,65 +299,32 @@ function nextSection() {
 .description {
   font-size: 1rem;
   color: #333;
-
-}
-
-/* FOOTER */
-.app-footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #516061;
-  color: white;
 }
 
 /* BUTTON */
 .next-button {
-  margin-top: 1rem;
-  padding: 0.7rem 1.2rem;
+  background-color: #04502e;
   border: none;
-  border-radius: 6px;
-  background-color: #5a7f63;
   color: white;
+  font-size: 1rem;
+  padding: 10px 20px;
   cursor: pointer;
-  font-weight: 600;
+  border-radius: 5px;
+  margin-top: 20px;
 }
 
 .next-button:hover {
-  background-color: #046a1e;
+  background-color: #333;
 }
 
-/* ANIMATIONS */
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+.app-footer {
+  padding: 1rem 2rem;
+  text-align: center;
+  background-color: #f0f8ff;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.4s;
+.map-container {
+  height: 100%;
+  width: 100%;
 }
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* RESPONSIVENESS */
-@media (max-width: 768px) {
-  .main-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .text-block,
-  .side-info {
-    width: 100%;
-  }
-
-  .typed-title {
-    font-size: 1.8rem;
-  }
-}
-
 </style>
-
-

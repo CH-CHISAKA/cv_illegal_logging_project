@@ -62,3 +62,16 @@ npm run test:e2e -- --debug
 ```sh
 npm run lint
 ```
+
+
+/src
+  /components       → Views (Vue UI components)
+  /controllers      → Controllers for UI logic
+  /models           → Data / state handling
+  /utils            → Utility helpers (e.g., classnames)
+  App.vue
+  main.ts
+
+
+<!-- Map Server -->
+node server.js
