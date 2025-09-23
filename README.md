@@ -73,5 +73,23 @@ npm run lint
   main.ts
 
 
+
+
+Monitor View
+│
+├── components/
+│   ├── Sidebar.vue
+│   ├── Dashboard.vue
+│   ├── RealTimeMap.vue
+│   ├── LiveCameraFeed.vue
+│   ├── SystemStatus.vue
+│
+├── views/
+│   ├── Home.vue
+│
+├── App.vue
+├── main.js
+
+
 <!-- Map Server -->
 node server.js

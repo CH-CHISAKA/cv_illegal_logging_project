@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
-import LeafletMap from "@/views/landing_page/components/LeafletMap.vue";
 import { useRouter } from 'vue-router';
 
 // ==================
@@ -93,39 +91,21 @@ function nextSection() {
   startTyping(currentContent.value.mainTitle);
 }
 
-// ==================
-// WebSocket + Map
-// ==================
-const tileLayerUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-
-interface MarkerData {
-  lat: number;
-  lng: number;
-}
-
-const markers = ref<MarkerData[]>([]);
-
 onMounted(() => {
   cycleContent();
-
-  const socket = new WebSocket('ws://localhost:8080');  // Replace with your server URL
-
-  socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log('Received data:', data);
-
-    const { lat, lng } = data;
-    markers.value.push({ lat, lng });
-  };
-
-  socket.onclose = () => {
-    console.log('WebSocket connection closed');
-  };
 });
 
-const handleMarkerClick = (marker: MarkerData) => {
-  console.log('Marker clicked:', marker);
-};
+const showDropdown = ref(false);
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function selectRole(role: string) {
+  showDropdown.value = false;
+  router.push(`/login/${role}`);
+}
+
 </script>
 
 <template>
@@ -133,18 +113,26 @@ const handleMarkerClick = (marker: MarkerData) => {
     <header class="nav-bar">
       <div id="nav-brand" @click="router.push('/')"> </div>
       <div class="nav-icons">
-        <i class="material-icons" id="icon-search" title="Search">search</i>
         <i class="material-icons" id="monitor" title="Monitor" @click="router.push('/monitor')">monitor</i>
-        <i class="material-icons" id="icon-profile" title="Profile">person</i>
+        
+        
+        <!-- Profile Dropdown -->
+        <div class="dropdown-wrapper" @mouseleave="showDropdown = false">
+          <i class="material-icons" id="icon-profile" title="Profile" @click="toggleDropdown">person</i>
+          <ul v-if="showDropdown" class="dropdown-menu">
+            <li @click="selectRole('forest-guard')">Forest Guard</li>
+            <li @click="selectRole('admin')">Admin</li>
+          </ul>
+        </div>
       </div>
     </header>
 
     <main class="main-content">
       <section class="text-block">
-        <span class="text-block-title">Monitoring Map</span>
-        <!-- Render map directly -->
-        <div class="map-container">
-          <LeafletMap />
+        <span class="text-block-title"> Map</span>
+        <!-- Map removed -->
+        <div class="map-container placeholder">
+          <p style="text-align:center; color:#555;">[ Map visualization removed ]</p>
         </div>
       </section>
 
@@ -160,8 +148,6 @@ const handleMarkerClick = (marker: MarkerData) => {
           <button class="next-button" @click="nextSection">Learn More 🌐</button>
         </section>
       </transition>
-
-
     </main>
 
     <footer class="app-footer">
@@ -171,7 +157,7 @@ const handleMarkerClick = (marker: MarkerData) => {
 </template>
 
 <style scoped>
-  /* LAYOUT */
+/* LAYOUT */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -195,12 +181,13 @@ const handleMarkerClick = (marker: MarkerData) => {
 }
 
 .nav-icons i {
-  margin-left: 16px;
+  margin-left: 12px;              /* reduced gap */
   cursor: pointer;
   position: relative;
   display: inline-block;
   padding-bottom: 4px;
   transition: color 0.3s;
+  
 }
 
 .nav-icons i:hover {
@@ -208,15 +195,33 @@ const handleMarkerClick = (marker: MarkerData) => {
 }
 
 .nav-icons i::after {
- content: '';
- position: absolute;
- left: 50%;
- transform: translateX(-50%);
- bottom: 0;
- height: 2px;
- width: 0;
- background-color: green;
- transition: width 0.3s ease-in-out;
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background-color: green;
+  transition: width 0.3s ease-in-out;
+}
+
+.nav-icons i:hover::after {
+  width: 100%; /* animate to full width on hover */
+}
+
+.nav-icons {
+  display: flex;
+  justify-content: flex-start; /* Push icons to the left */
+  gap: 24px; /* Increase spacing between icons */
+  padding-right: 22px; /* Add some right padding */
+}
+
+.nav-icons i {
+  cursor: pointer;
+  position: relative;
+  padding-bottom: 4px;
+  transition: color 0.3s;
 }
 
 #icon-search:hover::after,
@@ -224,7 +229,6 @@ const handleMarkerClick = (marker: MarkerData) => {
 #monitor:hover::after {
   width: 100%;
 }
-
 
 /* MAIN CONTENT */
 .main-content {
@@ -239,7 +243,7 @@ const handleMarkerClick = (marker: MarkerData) => {
 
 .text-block {
   flex: 1;
-  height: 500px; /* or 100vh */
+  height: 500px;
   width: 100%;
   min-width: 250px;
   position: relative;
@@ -248,15 +252,13 @@ const handleMarkerClick = (marker: MarkerData) => {
 .map-container {
   height: 400px;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background-color: #fafafa;
 }
-
-/* Optional: style for your map inside LandingPage */
-.text-block .container-map {
-  margin-top: 1rem;
-  height: 400px; /* you can tweak */
-  width: 100%;
-}
-
 
 .subtitle {
   font-size: 1.3rem;
@@ -272,9 +274,10 @@ const handleMarkerClick = (marker: MarkerData) => {
 
 .typed-title {
   font-size: 4.370rem;
-  font-weight: bold;
+  font-weight: lighter;
   margin-bottom: 0.5rem;
-  color: #04502e; /**  2c3e50  046a1e*/
+  color: #04502e;
+  font-family: 'Tahoma', sans-serif;
 }
 
 .cursor {
@@ -284,26 +287,89 @@ const handleMarkerClick = (marker: MarkerData) => {
 }
 
 .main-heading {
-  font-size: 1.55rem;
+  font-size: 1.20rem;
   margin: 10px 0;
   color: #2c3e50;
+  font-family: 'Tahoma', sans-serif;
+  font-weight: 550;
 }
 
 .info-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #5a7f63;
-
+  font-family: 'Tahoma', sans-serif;
+  font-weight: 500;
   margin-bottom: 0.5rem;
 }
 
 .description {
-  font-size: 1rem;
+  font-size: 0.8rem;
   color: #333;
+  font-family: 'Tahoma', sans-serif;
+  font-weight: 300;
+}
+
+
+.dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 150px;
+  box-shadow: 0px 3px 6px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.dropdown-menu li {
+  list-style: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dropdown-menu li:hover {
+  background-color: #04502e;
+  color: white;
+}
+.dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 150px;
+  box-shadow: 0px 3px 6px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.dropdown-menu li {
+  list-style: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dropdown-menu li:hover {
+  background-color: #04502e;
+  color: white;
 }
 
 /* BUTTON */
 .next-button {
-  background-color: #04502e;
+  background-color: #333;
   border: none;
   color: white;
   font-size: 1rem;
@@ -314,17 +380,12 @@ const handleMarkerClick = (marker: MarkerData) => {
 }
 
 .next-button:hover {
-  background-color: #333;
+  background-color: #04502e; 
 }
 
 .app-footer {
   padding: 1rem 2rem;
   text-align: center;
   background-color: #f0f8ff;
-}
-
-.map-container {
-  height: 100%;
-  width: 100%;
 }
 </style>

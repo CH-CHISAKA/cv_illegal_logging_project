@@ -5,5 +5,5 @@ import { ref } from "vue";
   <router-view />
 </template>
 
-<script setup lang="ts">
+<script>
 </script>

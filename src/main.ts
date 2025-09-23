@@ -1,3 +1,4 @@
+// For Vue 3:
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
