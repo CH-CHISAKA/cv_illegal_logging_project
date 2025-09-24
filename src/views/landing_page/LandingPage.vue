@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import LoginView from '@/components/auth/LoginView.vue'
-// import logo from 'public/assets/logo.png'
+import LoginView from './components/auth/LoginView.vue'
+import SignupModal from './components/auth/SignupModal.vue'
+
 
 // ==================
 // Content Sections
@@ -25,7 +26,7 @@ const contentSections: Content[] = [
     mainTitle: 'AI-Powered Monitoring',
     mainHeading: "Preserving <span class='subtitle'>Forests</span> Future",
     infoTitle: 'About AI Monitoring',
-    description: 'Our tool uses computer vision to monitor and protect forests in real time.',
+    description: 'Our computer vision tool monitors forests in real time, detecting illegal logging through remote sensors. The user-friendly platform delivers instant alerts, supports law enforcement, and helps protect ecosystems and biodiversity.',
   },
   {
     mainTitle: 'Sustainable Solutions',
@@ -105,6 +106,7 @@ onMounted(() => {
 
 const open = ref(false)
 const showLogin = ref(false)
+const showSignup = ref(false)
 const selectedRole = ref<string | null>(null)
 
 function toggleDropdown() {
@@ -121,6 +123,19 @@ function closeLogin() {
   showLogin.value = false
 }
 
+// ==================
+// Open signup modal
+// ================
+function switchToSignup() {
+  showLogin.value = false
+  showSignup.value = true
+}
+
+function switchToLogin() {
+  showSignup.value = false
+  showLogin.value = true
+}
+
 </script>
 
 <template>
@@ -134,8 +149,6 @@ function closeLogin() {
         <i class="material-icons" id="monitor" title="Monitor" @click="router.push('/monitor')"
           >monitor</i
         >
-
-        <!-- <i class="material-icons" id="icon-profile" title="Profile">person</i> -->
 
         <!-- Profile Dropdown Setup -->
         <div class="profile-dropdown">
@@ -165,6 +178,9 @@ function closeLogin() {
         </transition>
       </div>
     </header>
+    <!-- Login form modal integrated here -->
+    <LoginView v-if="showLogin" :role="selectedRole" @close="showLogin = false" @open-signup="switchToSignup" />
+    <SignupModal v-if="showSignup" @close="showSignup = false" @open-login="switchToLogin"/>
 
     <main class="main-content">
       <section class="text-block">
@@ -193,6 +209,7 @@ function closeLogin() {
       <p>&copy; 2025 Illegal Logging Detection. All rights reserved.</p>
     </footer>
   </div>
+  <!-- <SignupModal v-if="showSignup" @close="showSignup = false" /> -->
 </template>
 
 <style scoped>
