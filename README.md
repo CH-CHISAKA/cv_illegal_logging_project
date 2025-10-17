@@ -1,6 +1,6 @@
 
 CV_Illegal_Logging_Project
-============================
+======================================
 Overview
 
 Illegal logging in Kenyan forests poses a serious threat to biodiversity, climate resilience, and local livelihoods. Traditional monitoring methods—manual patrols, satellite imagery, aerial surveillance—are costly, slow, and reactive, especially in remote forest regions.
