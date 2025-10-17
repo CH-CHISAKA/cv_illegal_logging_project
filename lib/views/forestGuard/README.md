@@ -1,0 +1,23 @@
+/lib
+  main.dart
+  /screens
+    dashboard_screen.dart
+    alerts_screen.dart
+    map_screen.dart
+    analytics_screen.dart
+    system_status_screen.dart
+    feedback_screen.dart
+  /components
+    alert_card.dart
+    event_modal.dart
+    kpi_tile.dart
+    device_status_tile.dart
+  /models
+    alert.dart
+    device.dart
+    kpi.dart
+  /services
+    api_service.dart
+    localization_service.dart
+  /state
+    dashboard_state.dart
