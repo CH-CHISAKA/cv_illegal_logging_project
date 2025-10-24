@@ -60,7 +60,6 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Main background image
           Positioned.fill(
             child: Image.asset(
               'assets/images/3.0x/image4.png',
@@ -68,14 +67,10 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
               filterQuality: FilterQuality.high,
             ),
           ),
-
-          // PageView with onboarding pages
           PageView(
             controller: _pageController,
-            // Update _currentPage and detect page 1
             onPageChanged: (index) {
               if (index == 1) {
-                // Navigate back to SplashScreen when landing on 2nd page
                 Navigator.pushReplacement(
                   context,
                   _createRouteToSplashScreen(),
@@ -86,8 +81,6 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                 });
               }
             },
-
-            // PageView children: replace 2nd page with empty Container or similar
             children: [
               _buildOnboardPage(
                 context,
@@ -97,7 +90,7 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                 description:
                     "Forests are the lungs of the surface, home for thousands of unique flora and fauna. Nature needs our protection now more than ever. Conserving forests is key to the survival of all natural ecosystems on earth.",
               ),
-              Container(), // Empty container, navigation triggers instantly
+              Container(),
               Container(
                 color: Colors.green[700]?.withValues(alpha: 0.5),
                 child: Center(
@@ -109,15 +102,11 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
               ),
             ],
           ),
-
-          // ImpressionableButton Arrows, positioned at bottom right
-          // ImpressionableButton Arrows, positioned at bottom right
           Positioned(
             right: 40,
             bottom: 40,
             child: Row(
               children: [
-                // LEFT BUTTON: Goes to Service screen and indicators update
                 ImpressionableButton(
                   icon: Icons.arrow_back_ios_new,
                   size: 40,
@@ -127,13 +116,11 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                       _createRouteToServiceScreen(),
                     );
                     setState(() {
-                      // You may choose to set indicator to 0 or last, here example sets to last
                       _currentPage = 2;
                     });
                   },
                 ),
                 const SizedBox(width: 22),
-                // RIGHT BUTTON: Goes to SplashScreen and indicators update
                 ImpressionableButton(
                   icon: Icons.arrow_forward_ios,
                   size: 40,
@@ -150,8 +137,6 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
               ],
             ),
           ),
-
-          // Page indicators at bottom center
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
@@ -168,17 +153,12 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
               ),
             ),
           ),
-
-          // Top Navigation Bar (optional to include same header as splash screen)
           Positioned(
             left: 0,
             right: 0,
             top: 0,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 30.0,
-                vertical: 18.0,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 18.0),
               color: Colors.black.withValues(alpha: 0.05),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -215,7 +195,6 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                   ),
                   Row(
                     children: [
-                      // PROFILE - Popup Menu with Role Selection
                       PopupMenuButton<String>(
                         onSelected: (role) {
                           openLogin(role);
@@ -225,19 +204,13 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                         },
                         itemBuilder: (context) => const [
                           PopupMenuItem(value: 'admin', child: Text('Admin')),
-                          PopupMenuItem(
-                            value: 'forest-guard',
-                            child: Text('Forest Guard'),
-                          ),
+                          PopupMenuItem(value: 'forest-guard', child: Text('Forest Guard')),
                         ],
                         offset: const Offset(0, 40),
-                        // color: Colors.grey[800],
                         color: Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-
-                        // Fix: Wrap child in Material to ensure tap recognition
                         child: Material(
                           color: Colors.transparent,
                           child: NavBarItem(
@@ -246,8 +219,6 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                           ),
                         ),
                       ),
-
-                      // MONITORING
                       NavBarItem(
                         'MONITORING',
                         isActive: selectedNavItem == 'MONITORING',
@@ -257,8 +228,6 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                           });
                         },
                       ),
-
-                      // SERVICES
                       NavBarItem(
                         'SERVICES',
                         isActive: selectedNavItem == 'SERVICES',
@@ -275,8 +244,6 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                           );
                         },
                       ),
-
-                      // FAQ
                       NavBarItem(
                         'FAQ',
                         isActive: selectedNavItem == 'FAQ',
@@ -292,39 +259,28 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
               ),
             ),
           ),
-
-          // == PARTIAL BLUR just under modal overlay, matching its size/position ==
           Stack(
             children: [
-              // Partial blur only when modals are shown
               if (showLogin || showSignup)
                 Align(
                   alignment: Alignment.centerRight,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 15),
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 000),
-                      width: showLogin
-                          ? 350
-                          : 351, // adjust width dynamically (example)
-                      height: showLogin
-                          ? 385
-                          : 450, // adjust height dynamically (example)
+                      duration: const Duration(milliseconds: 0),
+                      width: showLogin ? 350 : 351,
+                      height: showLogin ? 385 : 450,
                       curve: Curves.easeInOut,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(24),
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                          child: Container(
-                            color: Colors.black.withValues(alpha: 0.1),
-                          ),
+                          child: Container(color: Colors.black.withValues(alpha: 0.1)),
                         ),
                       ),
                     ),
                   ),
                 ),
-
-              // ===== Modals Section =====
               if (showLogin)
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -335,7 +291,6 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                     onOpenSignup: openSignup,
                   ),
                 ),
-
               if (showSignup)
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -555,44 +510,47 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
   }
 }
 
-// Helper Method to create route to SplashScreen
+// Helper Method to create route to SplashScreen with Pop-In transition
 Route _createRouteToSplashScreen() {
   return PageRouteBuilder(
-    transitionDuration: const Duration(milliseconds: 400),
-    pageBuilder: (context, animation, secondaryAnimation) =>
-        const SplashScreen(),
+    transitionDuration: const Duration(milliseconds: 250),
+    pageBuilder: (context, animation, secondaryAnimation) => const SplashScreen(),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(-1.0, 0.0);
-      const end = Offset.zero;
-      const curve = Curves.ease;
+      final scaleTween =
+          Tween<double>(begin: 0.8, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
+      final fadeTween =
+          Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
 
-      final tween = Tween(
-        begin: begin,
-        end: end,
-      ).chain(CurveTween(curve: curve));
-
-      return SlideTransition(position: animation.drive(tween), child: child);
+      return FadeTransition(
+        opacity: animation.drive(fadeTween),
+        child: ScaleTransition(
+          scale: animation.drive(scaleTween),
+          child: child,
+        ),
+      );
     },
   );
 }
 
-// Helper Method to create route to ServiceScreen
+// Helper Method to create route to ServiceScreen with Pop-In transition
 Route _createRouteToServiceScreen() {
   return PageRouteBuilder(
-    transitionDuration: const Duration(milliseconds: 400),
+    transitionDuration: const Duration(milliseconds: 250),
     pageBuilder: (context, animation, secondaryAnimation) =>
         const ServiceScreen(selectedNavItem: ''),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(1.0, 0.0);
-      const end = Offset.zero;
-      const curve = Curves.ease;
+      final scaleTween =
+          Tween<double>(begin: 0.8, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
+      final fadeTween =
+          Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
 
-      final tween = Tween(
-        begin: begin,
-        end: end,
-      ).chain(CurveTween(curve: curve));
-
-      return SlideTransition(position: animation.drive(tween), child: child);
+      return FadeTransition(
+        opacity: animation.drive(fadeTween),
+        child: ScaleTransition(
+          scale: animation.drive(scaleTween),
+          child: child,
+        ),
+      );
     },
   );
 }
@@ -601,7 +559,7 @@ Route _createRouteToServiceScreen() {
 class NavBarItem extends StatefulWidget {
   final String text;
   final bool isActive;
-  final VoidCallback? onTap; // Add onTap callback
+  final VoidCallback? onTap;
 
   const NavBarItem(this.text, {super.key, this.isActive = false, this.onTap});
 
@@ -610,7 +568,7 @@ class NavBarItem extends StatefulWidget {
 }
 
 class _NavBarItemState extends State<NavBarItem> {
-  bool isHovered = false; // Track hover state
+  bool isHovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -624,16 +582,10 @@ class _NavBarItemState extends State<NavBarItem> {
           child: Text(
             widget.text,
             style: TextStyle(
-              color: widget.isActive || isHovered
-                  ? Colors.white
-                  : Colors.white70,
-              fontWeight: widget.isActive || isHovered
-                  ? FontWeight.bold
-                  : FontWeight.normal,
+              color: widget.isActive || isHovered ? Colors.white : Colors.white70,
+              fontWeight: widget.isActive || isHovered ? FontWeight.bold : FontWeight.normal,
               fontSize: 16,
-              decoration: isHovered
-                  ? TextDecoration.underline
-                  : TextDecoration.none,
+              decoration: isHovered ? TextDecoration.underline : TextDecoration.none,
               decorationColor: Colors.white,
               decorationThickness: 2.0,
             ),

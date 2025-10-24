@@ -18,9 +18,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
   bool showLogin = false;
   bool showSignup = false;
   String selectedRole = '';
-  final int _currentPage = 2; // Track current active page for indicators
-  late String selectedNavItem = ''; // or set a default like 'MONITORING'
-  // late String selectedNavItem = widget.selectedNavItem;
+  final int _currentPage = 2;
+  late String selectedNavItem = '';
 
   @override
   void initState() {
@@ -48,228 +47,55 @@ class _ServiceScreenState extends State<ServiceScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Define card width and height as fractions of screen size to enable responsiveness
-    final cardWidth = screenWidth * 0.28; // about 28% of screen width
-    final cardHeight = screenHeight * 0.5; // about 50% of screen height
+    final cardWidth = screenWidth * 0.28;
+    final cardHeight = screenHeight * 0.5;
 
     return Scaffold(
       body: Stack(
         children: [
-          // Background image fills entire screen
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/3.0x/image7.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/images/3.0x/image7.png', fit: BoxFit.cover),
           ),
-
-          // Dynamically positioned Info Cards using relative sizing
-
-          // First Info Card
           Positioned(
             left: screenWidth * 0.05,
             top: screenHeight * 0.15,
             width: cardWidth,
             height: cardHeight,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              // BackdropFilter blur area size is controlled by Container's width/height
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: Container(
-                  // Reduce color opacity and padding to reduce blur background size
-                  color: Colors.white.withValues(alpha: 0.45),
-                  padding: const EdgeInsets.all(20.0),
-                  child: _buildInfoCard(
-                    title: 'AI-Powered Monitoring',
-                    heading: "Preserving Forests' Future",
-                    infoTitle: 'About AI Monitoring',
-                    description:
-                        'Our computer vision tool monitors forests in real time, detecting illegal logging through remote sensors. The user-friendly platform delivers instant alerts, supports law enforcement, and helps protect ecosystems and biodiversity.',
-                  ),
-                ),
-              ),
+            child: _buildGlassCard(
+              title: 'AI-Powered Monitoring',
+              heading: "Preserving Forests' Future",
+              infoTitle: 'About AI Monitoring',
+              description:
+                  'Our computer vision tool monitors forests in real time, detecting illegal logging through remote sensors.',
             ),
           ),
-
-          // Second Info Card
           Positioned(
             left: screenWidth * 0.38,
             top: screenHeight * 0.15,
             width: cardWidth,
             height: cardHeight,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: Container(
-                  color: Colors.white.withValues(alpha: 0.45),
-                  padding: const EdgeInsets.all(20.0),
-                  child: _buildInfoCard(
-                    title: 'Sustainable Solutions',
-                    heading: "Smart Tech [:for Green Earth]",
-                    infoTitle: 'The Vision',
-                    description:
-                        'We aim to enable data-driven conservation to fight illegal logging worldwide.',
-                  ),
-                ),
-              ),
+            child: _buildGlassCard(
+              title: 'Sustainable Solutions',
+              heading: "Smart Tech [:for Green Earth]",
+              infoTitle: 'The Vision',
+              description:
+                  'We aim to enable data-driven conservation to fight illegal logging worldwide.',
             ),
           ),
-
-          // Third Info Card
           Positioned(
             left: screenWidth * 0.71,
             top: screenHeight * 0.15,
             width: cardWidth,
             height: cardHeight,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: Container(
-                  color: Colors.white.withValues(alpha: 0.45),
-                  padding: const EdgeInsets.all(20.0),
-                  child: _buildInfoCard(
-                    title: 'Innovative Impact',
-                    heading: "Technology Meets Nature",
-                    infoTitle: 'Our Mission',
-                    description:
-                        'Integrating innovation with sustainability to effectively combat illegal logging, preserving natural habitats.',
-                  ),
-                ),
-              ),
+            child: _buildGlassCard(
+              title: 'Innovative Impact',
+              heading: "Technology Meets Nature",
+              infoTitle: 'Our Mission',
+              description:
+                  'Integrating innovation with sustainability to effectively combat illegal logging.',
             ),
           ),
-
-          // Top navigation bar
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 30.0,
-                vertical: 18.0,
-              ),
-              color: Colors.black.withValues(alpha: 0.05),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: const [
-                      Text(
-                        'ILLEGAL',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      Text(
-                        ' LOGGING',
-                        style: TextStyle(
-                          color: Color(0xFF8BC34A),
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      Text(
-                        ' APP',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Navigation Items
-                  Row(
-                    children: [
-                      // PROFILE - Popup Menu with Role Selection
-                      PopupMenuButton<String>(
-                        onSelected: (role) {
-                          openLogin(role);
-                          setState(() {
-                            selectedNavItem = 'PROFILE';
-                          });
-                        },
-                        itemBuilder: (context) => const [
-                          PopupMenuItem(value: 'admin', child: Text('Admin')),
-                          PopupMenuItem(
-                            value: 'forest-guard',
-                            child: Text('Forest Guard'),
-                          ),
-                        ],
-                        offset: const Offset(0, 40),
-                        // color: Colors.grey[800],
-                        color: Colors.grey,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-
-                        // Fix: Wrap child in Material to ensure tap recognition
-                        child: Material(
-                          color: Colors.transparent,
-                          child: NavBarItem(
-                            'PROFILE ▼',
-                            isActive: selectedNavItem == 'PROFILE',
-                          ),
-                        ),
-                      ),
-
-                      // MONITORING
-                      NavBarItem(
-                        'MONITORING',
-                        isActive: selectedNavItem == 'MONITORING',
-                        onTap: () {
-                          setState(() {
-                            selectedNavItem = 'MONITORING';
-                          });
-                        },
-                      ),
-
-                      // SERVICES
-                      NavBarItem(
-                        'SERVICES',
-                        isActive: selectedNavItem == 'SERVICES',
-                        onTap: () {
-                          setState(() {
-                            selectedNavItem = 'SERVICES';
-                          });
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ServiceScreen(
-                                selectedNavItem: 'SERVICES',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-
-                      // FAQ
-                      NavBarItem(
-                        'FAQ',
-                        isActive: selectedNavItem == 'FAQ',
-                        onTap: () {
-                          setState(() {
-                            selectedNavItem = 'FAQ';
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Right-side headline and description
+          _buildNavBar(),
           Positioned(
             right: 46,
             bottom: 94,
@@ -288,19 +114,16 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "About Us -\nPreserving Kenya's Forests Future. Our team advances \nsustainable landscape, irrigation, and tree care projects.",
+                  "About Us -\nPreserving Kenya's Forests Future. Our team advances \nsustainable landscape and tree care projects.",
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.88),
                     fontSize: 12,
-                    fontWeight: FontWeight.w400,
                   ),
                   textAlign: TextAlign.right,
                 ),
               ],
             ),
           ),
-
-          // Navigation buttons
           Positioned(
             right: 40,
             bottom: 40,
@@ -330,8 +153,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
               ],
             ),
           ),
-
-          // Page indicators
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
@@ -340,119 +161,97 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: List.generate(
                   3,
-                  (index) => Padding(
+                  (i) => Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: _buildIndicator(
-                      index == _currentPage,
-                    ), // Active dot based on _currentPage
+                    child: _buildIndicator(i == _currentPage),
                   ),
                 ),
               ),
             ),
           ),
-          // == PARTIAL BLUR just under modal overlay, matching its size/position ==
-          Stack(
-            children: [
-              // Partial blur appears when either modal is active
-              if (showLogin || showSignup)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 15),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 000),
-                      width: showLogin ? 350 : 351,
-                      height: showLogin ? 385 : 450,
-                      curve: Curves.easeInOut,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                          child: Container(
-                            color: Colors.black.withValues(alpha: 0.1),
-                          ),
-                        ),
-                      ),
+          if (showLogin || showSignup)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 15),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 0),
+                  width: showLogin ? 350 : 351,
+                  height: showLogin ? 385 : 450,
+                  curve: Curves.easeInOut,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(color: Colors.black.withValues(alpha: 0.1)),
                     ),
                   ),
                 ),
-
-              // ===== Modals Section =====
-              if (showLogin)
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(() => showLogin = false),
-                  child: LoginView(
-                    role: selectedRole,
-                    onClose: () => setState(() => showLogin = false),
-                    onOpenSignup: openSignup,
-                  ),
-                ),
-
-              if (showSignup)
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(() => showSignup = false),
-                  child: SignupView(
-                    key: ValueKey(selectedRole),
-                    role: selectedRole,
-                    onClose: () => setState(() => showSignup = false),
-                    onOpenLogin: () => openLogin(selectedRole),
-                  ),
-                ),
-            ],
-          ),
+              ),
+            ),
+          if (showLogin)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() => showLogin = false),
+              child: LoginView(
+                role: selectedRole,
+                onClose: () => setState(() => showLogin = false),
+                onOpenSignup: openSignup,
+              ),
+            ),
+          if (showSignup)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() => showSignup = false),
+              child: SignupView(
+                key: ValueKey(selectedRole),
+                role: selectedRole,
+                onClose: () => setState(() => showSignup = false),
+                onOpenLogin: () => openLogin(selectedRole),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  // Info card builder
-  Widget _buildInfoCard({
+  Widget _buildGlassCard({
     required String title,
     required String heading,
     required String infoTitle,
     required String description,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          color: Colors.white.withValues(alpha: 0.45),
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
+              const SizedBox(height: 8),
+              Text(heading,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87)),
+              const SizedBox(height: 8),
+              Text(infoTitle,
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54)),
+              const SizedBox(height: 10),
+              Text(description,
+                  style: const TextStyle(fontSize: 13, color: Colors.black87)),
+            ],
           ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          heading,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          infoTitle,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.black54,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          description,
-          style: const TextStyle(fontSize: 13, color: Colors.black87),
-        ),
-      ],
+      ),
     );
   }
 
-  // Page indicator dot
   Widget _buildIndicator(bool isActive) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -464,46 +263,124 @@ class _ServiceScreenState extends State<ServiceScreen> {
       ),
     );
   }
+
+  Widget _buildNavBar() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      top: 0,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 18.0),
+        color: Colors.black.withValues(alpha: 0.05),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: const [
+                Text('ILLEGAL',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold)),
+                Text(' LOGGING',
+                    style: TextStyle(
+                        color: Color(0xFF8BC34A),
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold)),
+                Text(' APP',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold)),
+              ],
+            ),
+            Row(
+              children: [
+                PopupMenuButton<String>(
+                  onSelected: (role) {
+                    openLogin(role);
+                    setState(() {
+                      selectedNavItem = 'PROFILE';
+                    });
+                  },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(value: 'admin', child: Text('Admin')),
+                    PopupMenuItem(value: 'forest-guard', child: Text('Forest Guard')),
+                  ],
+                  offset: const Offset(0, 40),
+                  color: Colors.grey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: NavBarItem(
+                      'PROFILE ▼',
+                      isActive: selectedNavItem == 'PROFILE',
+                    ),
+                  ),
+                ),
+                NavBarItem(
+                  'MONITORING',
+                  isActive: selectedNavItem == 'MONITORING',
+                  onTap: () {
+                    setState(() => selectedNavItem = 'MONITORING');
+                  },
+                ),
+                NavBarItem(
+                  'SERVICES',
+                  isActive: selectedNavItem == 'SERVICES',
+                  onTap: () {
+                    setState(() => selectedNavItem = 'SERVICES');
+                  },
+                ),
+                NavBarItem(
+                  'FAQ',
+                  isActive: selectedNavItem == 'FAQ',
+                  onTap: () {
+                    setState(() => selectedNavItem = 'FAQ');
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-// Helper Method to create route to SplashScreen
-Route _createRouteToSplashScreen() {
+// Pop‑In transition replacing SlideTransition for both navigation directions
+Route<Object?> _createRouteToSplashScreen() {
   return PageRouteBuilder(
-    transitionDuration: const Duration(milliseconds: 400),
-    pageBuilder: (context, animation, secondaryAnimation) =>
-        const SplashScreen(),
+    transitionDuration: const Duration(milliseconds: 250),
+    pageBuilder: (context, animation, secondaryAnimation) => const SplashScreen(),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(-1.0, 0.0);
-      const end = Offset.zero;
-      const curve = Curves.ease;
-
-      final tween = Tween(
-        begin: begin,
-        end: end,
-      ).chain(CurveTween(curve: curve));
-
-      return SlideTransition(position: animation.drive(tween), child: child);
+      final scaleTween =
+          Tween<double>(begin: 0.8, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
+      final fadeTween =
+          Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
+      return FadeTransition(
+        opacity: animation.drive(fadeTween),
+        child: ScaleTransition(scale: animation.drive(scaleTween), child: child),
+      );
     },
   );
 }
 
-// Helper method to create a route with slide transition to OnBoardScreen
 Route _createRouteToOnboarding() {
   return PageRouteBuilder(
-    transitionDuration: const Duration(milliseconds: 400),
-    pageBuilder: (context, animation, secondaryAnimation) =>
-        const OnBoardScreen(),
+    transitionDuration: const Duration(milliseconds: 250),
+    pageBuilder: (context, animation, secondaryAnimation) => const OnBoardScreen(),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(1.0, 0.0); // Slide in from left
-      const end = Offset.zero;
-      const curve = Curves.ease;
-
-      final tween = Tween(
-        begin: begin,
-        end: end,
-      ).chain(CurveTween(curve: curve));
-
-      return SlideTransition(position: animation.drive(tween), child: child);
+      final scaleTween =
+          Tween<double>(begin: 0.8, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
+      final fadeTween =
+          Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
+      return FadeTransition(
+        opacity: animation.drive(fadeTween),
+        child: ScaleTransition(scale: animation.drive(scaleTween), child: child),
+      );
     },
   );
 }
@@ -513,7 +390,6 @@ class NavBarItem extends StatefulWidget {
   final String text;
   final bool isActive;
   final VoidCallback? onTap;
-
   const NavBarItem(this.text, {super.key, this.isActive = false, this.onTap});
 
   @override
@@ -521,8 +397,7 @@ class NavBarItem extends StatefulWidget {
 }
 
 class _NavBarItemState extends State<NavBarItem> {
-  bool isHovered = false; // Track hover state
-
+  bool isHovered = false;
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -535,18 +410,13 @@ class _NavBarItemState extends State<NavBarItem> {
           child: Text(
             widget.text,
             style: TextStyle(
-              color: widget.isActive || isHovered
-                  ? Colors.white
-                  : Colors.white70,
-              fontWeight: widget.isActive || isHovered
-                  ? FontWeight.bold
-                  : FontWeight.normal,
+              color: widget.isActive || isHovered ? Colors.white : Colors.white70,
+              fontWeight:
+                  widget.isActive || isHovered ? FontWeight.bold : FontWeight.normal,
               fontSize: 16,
-              decoration: isHovered
-                  ? TextDecoration.underline
-                  : TextDecoration.none,
+              decoration: isHovered ? TextDecoration.underline : TextDecoration.none,
               decorationColor: Colors.white,
-              decorationThickness: 2.0, // make the underline thicker
+              decorationThickness: 2.0,
             ),
           ),
         ),

@@ -1,3 +1,4 @@
+
 import 'package:cv_illegal_logging_project/views/auth/oauth/login_modal.dart';
 import 'package:cv_illegal_logging_project/views/auth/oauth/signup_modal.dart';
 import 'package:cv_illegal_logging_project/views/auth/serviceScreen/service_screen.dart';
@@ -16,9 +17,8 @@ class _SplashScreenState extends State<SplashScreen> {
   bool showLogin = false;
   bool showSignup = false;
   String selectedRole = '';
-  final int _currentPage =
-      1; // Track current page indicator index (2nd dot active)
-  String selectedNavItem = ''; // or set a default like 'MONITORING'
+  final int _currentPage = 1;
+  String selectedNavItem = '';
 
   void openLogin(String role) {
     setState(() {
@@ -35,8 +35,6 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  // Animated indicator builder with smooth size/color change
-  // Page indicator dot
   Widget _buildIndicator(bool isActive) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -55,7 +53,6 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Background Image
           Positioned.fill(
             child: Image.asset(
               'assets/images/3.0x/image3.png',
@@ -63,8 +60,6 @@ class _SplashScreenState extends State<SplashScreen> {
               filterQuality: FilterQuality.high,
             ),
           ),
-
-          // Semi-transparent overlay (left side)
           Positioned(
             left: 0,
             top: 0,
@@ -72,8 +67,6 @@ class _SplashScreenState extends State<SplashScreen> {
             width: MediaQuery.of(context).size.width * 0.5,
             child: Container(color: Colors.black.withValues(alpha: 0.5)),
           ),
-
-          // Top Navigation Bar
           Positioned(
             left: 0,
             right: 0,
@@ -83,7 +76,6 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Logo and Title
                   Row(
                     children: const [
                       Text(
@@ -114,11 +106,8 @@ class _SplashScreenState extends State<SplashScreen> {
                       ),
                     ],
                   ),
-
-                  // Menu
                   Row(
                     children: [
-                      // PROFILE - Popup Menu with Role Selection
                       PopupMenuButton<String>(
                         onSelected: (role) {
                           openLogin(role);
@@ -134,13 +123,10 @@ class _SplashScreenState extends State<SplashScreen> {
                           ),
                         ],
                         offset: const Offset(0, 40),
-                        // color: Colors.grey[800],
                         color: Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-
-                        // Fix: Wrap child in Material to ensure tap recognition
                         child: Material(
                           color: Colors.transparent,
                           child: NavBarItem(
@@ -149,26 +135,18 @@ class _SplashScreenState extends State<SplashScreen> {
                           ),
                         ),
                       ),
-
-                      // MONITORING
                       NavBarItem(
                         'MONITORING',
                         isActive: selectedNavItem == 'MONITORING',
                         onTap: () {
-                          setState(() {
-                            selectedNavItem = 'MONITORING';
-                          });
+                          setState(() => selectedNavItem = 'MONITORING');
                         },
                       ),
-
-                      // SERVICES
                       NavBarItem(
                         'SERVICES',
                         isActive: selectedNavItem == 'SERVICES',
                         onTap: () {
-                          setState(() {
-                            selectedNavItem = 'SERVICES';
-                          });
+                          setState(() => selectedNavItem = 'SERVICES');
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -178,15 +156,11 @@ class _SplashScreenState extends State<SplashScreen> {
                           );
                         },
                       ),
-
-                      // FAQ
                       NavBarItem(
                         'FAQ',
                         isActive: selectedNavItem == 'FAQ',
                         onTap: () {
-                          setState(() {
-                            selectedNavItem = 'FAQ';
-                          });
+                          setState(() => selectedNavItem = 'FAQ');
                         },
                       ),
                     ],
@@ -195,8 +169,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
           ),
-
-          // Main content
           Positioned(
             left: 40,
             bottom: 80,
@@ -266,15 +238,11 @@ class _SplashScreenState extends State<SplashScreen> {
               ],
             ),
           ),
-
-          // Leaf icon
           const Positioned(
             left: 120,
             top: 55,
             child: Icon(Icons.eco, color: Color(0xFF8BC34A), size: 40),
           ),
-
-          // Carousel arrows
           Positioned(
             right: 40,
             bottom: 40,
@@ -290,10 +258,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     );
                   },
                 ),
-
                 const SizedBox(width: 22),
-
-                // RIGHT BUTTON: Goes to Service Screen
                 ImpressionableButton(
                   icon: Icons.arrow_forward_ios,
                   size: 40,
@@ -307,8 +272,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ],
             ),
           ),
-
-          // Animated Page Indicators
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
@@ -325,8 +288,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
           ),
-
-          // ===== Modals Section =====
           if (showLogin)
             GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -337,7 +298,6 @@ class _SplashScreenState extends State<SplashScreen> {
                 onOpenSignup: openSignup,
               ),
             ),
-
           if (showSignup)
             GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -354,50 +314,50 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
-  // Helper method to create a route with slide transition
   Route<Object?> _createRouteToServiceScreen() {
     return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 400),
+      transitionDuration: const Duration(milliseconds: 250),
       pageBuilder: (context, animation, secondaryAnimation) =>
           const ServiceScreen(selectedNavItem: ''),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0); // Slide in from right
-        const end = Offset.zero;
-        const curve = Curves.ease;
+        final scaleTween =
+            Tween<double>(begin: 0.8, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
+        final fadeTween =
+            Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
 
-        final tween = Tween(
-          begin: begin,
-          end: end,
-        ).chain(CurveTween(curve: curve));
-
-        return SlideTransition(position: animation.drive(tween), child: child);
+        return FadeTransition(
+          opacity: animation.drive(fadeTween),
+          child: ScaleTransition(
+            scale: animation.drive(scaleTween),
+            child: child,
+          ),
+        );
       },
     );
   }
 }
 
-// Helper method to create a route with slide transition
 Route _createRouteToOnboarding() {
   return PageRouteBuilder(
-    transitionDuration: const Duration(milliseconds: 400),
-    pageBuilder: (context, animation, secondaryAnimation) =>
-        const OnBoardScreen(),
+    transitionDuration: const Duration(milliseconds: 250),
+    pageBuilder: (context, animation, secondaryAnimation) => const OnBoardScreen(),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(-1.0, 0.0); // Slide in from left
-      const end = Offset.zero;
-      const curve = Curves.ease;
+      final scaleTween =
+          Tween<double>(begin: 0.8, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
+      final fadeTween =
+          Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOut));
 
-      final tween = Tween(
-        begin: begin,
-        end: end,
-      ).chain(CurveTween(curve: curve));
-
-      return SlideTransition(position: animation.drive(tween), child: child);
+      return FadeTransition(
+        opacity: animation.drive(fadeTween),
+        child: ScaleTransition(
+          scale: animation.drive(scaleTween),
+          child: child,
+        ),
+      );
     },
   );
 }
 
-// NavBarItem widget
 class NavBarItem extends StatefulWidget {
   final String text;
   final bool isActive;
@@ -410,7 +370,7 @@ class NavBarItem extends StatefulWidget {
 }
 
 class _NavBarItemState extends State<NavBarItem> {
-  bool isHovered = false; // Track hover state
+  bool isHovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -424,16 +384,12 @@ class _NavBarItemState extends State<NavBarItem> {
           child: Text(
             widget.text,
             style: TextStyle(
-              color: widget.isActive || isHovered
-                  ? Colors.white
-                  : Colors.white70,
+              color: widget.isActive || isHovered ? Colors.white : Colors.white70,
               fontWeight: widget.isActive || isHovered
                   ? FontWeight.bold
                   : FontWeight.normal,
               fontSize: 16,
-              decoration: isHovered
-                  ? TextDecoration.underline
-                  : TextDecoration.none,
+              decoration: isHovered ? TextDecoration.underline : TextDecoration.none,
               decorationColor: Colors.white,
               decorationThickness: 2.0,
             ),

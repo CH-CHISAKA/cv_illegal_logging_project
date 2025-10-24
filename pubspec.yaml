@@ -20,6 +20,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   shared_preferences: ^2.5.3
+  supabase_flutter: ^2.10.3
 
 dev_dependencies:
   flutter_test:
@@ -50,7 +51,6 @@ flutter:
     - assets/images/3.0x/image1.png  # higher DPI (3x)
     - assets/logos/
     - assets/icons/
-
 
   # fonts:
   #   - family: Schyler
