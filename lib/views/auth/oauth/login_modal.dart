@@ -1,11 +1,14 @@
 // ---------------------------------------------
 // File: loginModal.dart
-// Purpose: Login modal widget (UI only). Delegates auth/storage
-// to services and uses callbacks for open/close.
+// Purpose: Login modal widget with real authentication
+// Integrated with AuthService (Supabase) and real-time navigation
 // ---------------------------------------------
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cv_illegal_logging_project/controller/authservice.com/auth_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:cv_illegal_logging_project/views/admin/dashboard.ad/dashboard_ad.dart';
+import 'package:cv_illegal_logging_project/views/forestGuard/dashboard.fg/dashboard_fg.dart';
 
 class LoginView extends StatefulWidget {
   final String role;
@@ -14,24 +17,23 @@ class LoginView extends StatefulWidget {
 
   const LoginView({
     super.key,
-    required this.role,
-    required this.onClose,
-    required this.onOpenSignup,
+    this.role = 'forest-guard',
+    this.onClose = _noop,
+    this.onOpenSignup = _noop,
   });
+
+  static void _noop() {}
 
   @override
   State<LoginView> createState() => _LoginViewState();
 }
 
-// role_utils.dart (or at the top of your loginModal.dart file)
 const Map<String, String> _roleDisplayNames = {
   'admin': 'Admin',
   'forest-guard': 'Forest Guard',
 };
 
 String _getDisplayRole(String role) {
-  // Use the map to get the display name, defaulting to 'User'
-  // for empty or unmapped roles.
   return _roleDisplayNames[role.toLowerCase()] ?? 'User';
 }
 
@@ -40,6 +42,16 @@ class _LoginViewState extends State<LoginView> {
   final _passwordController = TextEditingController();
   bool _rememberMe = true;
   bool _showPassword = false;
+  bool _isLoading = false;
+
+  final AuthService _authService = AuthService();
+  late final SupabaseClient _client;
+
+  @override
+  void initState() {
+    super.initState();
+    _client = Supabase.instance.client;
+  }
 
   @override
   void dispose() {
@@ -57,17 +69,48 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final session = {
-      'role': widget.role.isNotEmpty ? widget.role : 'user',
-      'username': username,
-      'rememberMe': _rememberMe,
-    };
-    await prefs.setString('iluser', session.toString());
+    setState(() => _isLoading = true);
 
-    final displayRole = _getDisplayRole(widget.role);
-    _showAlert('Logged in as $displayRole');
-    widget.onClose();
+    try {
+      // Perform real authentication
+      final success = await _authService.signInWithEmailAndPassword(
+        email: username,
+        password: password,
+        rememberMe: _rememberMe,
+      );
+
+      if (!success) {
+        _showAlert('Invalid credentials. Please try again.');
+        return;
+      }
+
+      // Fetch the user's profile to determine role
+      final profile = await _authService.fetchProfile();
+      final role = profile?['role'] ?? 'forest-guard';
+
+      _navigateBasedOnRole(role);
+
+    } catch (e) {
+      _showAlert('Login failed: ${e.toString()}');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _navigateBasedOnRole(String role) {
+    if (!mounted) return;
+
+    if (role == 'admin') {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const DashboardAD()),
+        (route) => false,
+      );
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const DashboardFG()),
+        (route) => false,
+      );
+    }
   }
 
   void _showAlert(String message) {
@@ -105,9 +148,10 @@ class _LoginViewState extends State<LoginView> {
               children: [
                 Text(
                   'Login as ${_getDisplayRole(widget.role)}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineSmall?.copyWith(color: Colors.white),
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(color: Colors.white),
                 ),
                 const SizedBox(height: 6),
                 const Text(
@@ -117,8 +161,8 @@ class _LoginViewState extends State<LoginView> {
                 const SizedBox(height: 18),
                 _buildTextField(
                   controller: _usernameController,
-                  hint: 'Username',
-                  keyboardType: TextInputType.text,
+                  hint: 'Email',
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 12),
                 _buildTextField(
@@ -128,7 +172,9 @@ class _LoginViewState extends State<LoginView> {
                   obscure: !_showPassword,
                   suffix: IconButton(
                     icon: Icon(
-                      _showPassword ? Icons.visibility_off : Icons.visibility,
+                      _showPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                     ),
                     onPressed: () =>
                         setState(() => _showPassword = !_showPassword),
@@ -154,20 +200,25 @@ class _LoginViewState extends State<LoginView> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _handleLogin,
+                    onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
+                      backgroundColor: Colors.white,
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12.0),
-                      child: Text(
-                        'Login',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                        ),
-                      ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                              color: Colors.black,
+                            )
+                          : const Text(
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
+                            ),
                     ),
                   ),
                 ),

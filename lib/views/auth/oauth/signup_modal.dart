@@ -1,13 +1,15 @@
 // ---------------------------------------------
 // File: signupModal.dart
-// Purpose: Signup modal widget (UI only). Delegates auth/storage
-// to services and uses callbacks for open/close.
+// Purpose: Signup modal widget with real authentication
+// Integrated with AuthService (Supabase) and real-time navigation
 // ---------------------------------------------
 
 import 'package:flutter/material.dart';
+import 'package:cv_illegal_logging_project/controller/authservice.com/auth_service.dart';
+import 'package:cv_illegal_logging_project/views/admin/dashboard.ad/dashboard_ad.dart';
+import 'package:cv_illegal_logging_project/views/forestGuard/dashboard.fg/dashboard_fg.dart';
 
 class SignupView extends StatefulWidget {
-  // Add the onClose callback here.
   final VoidCallback onClose;
   final VoidCallback onOpenLogin;
   final String role;
@@ -23,16 +25,12 @@ class SignupView extends StatefulWidget {
   State<SignupView> createState() => _SignupViewState();
 }
 
-// Define the map for role display names at the top of the file
 const Map<String, String> _roleDisplayNames = {
   'admin': 'Admin',
   'forest-guard': 'Forest Guard',
 };
 
-// Function to format the role string for display
 String _getDisplayRole(String role) {
-  // Use the map to get the display name, defaulting to 'User'
-  // for empty or unmapped roles.
   return _roleDisplayNames[role.toLowerCase()] ?? 'User';
 }
 
@@ -42,9 +40,12 @@ class _SignupViewState extends State<SignupView> {
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
 
-  // Define separate boolean variables for each password field
   bool _showPassword1 = false;
   bool _showPassword2 = false;
+  bool _isLoading = false;
+
+  final AuthService _authService = AuthService();
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -54,16 +55,13 @@ class _SignupViewState extends State<SignupView> {
     super.dispose();
   }
 
-  void _handleSignup() {
+  Future<void> _handleSignup() async {
     final username = _usernameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirm = _confirmController.text;
 
-    if (username.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        confirm.isEmpty) {
+    if (username.isEmpty || email.isEmpty || password.isEmpty || confirm.isEmpty) {
       _showAlert('Please fill all fields.');
       return;
     }
@@ -73,10 +71,47 @@ class _SignupViewState extends State<SignupView> {
       return;
     }
 
-    // Format the role using the helper function before showing the alert
-    final displayRole = _getDisplayRole(widget.role);
-    _showAlert('Account created for $username as a $displayRole.');
-    // Additional signup logic goes here
+    setState(() => _isLoading = true);
+
+    try {
+      // Perform real Supabase signup
+      final res = await _authService.signUp(
+        email: email,
+        password: password,
+        username: username,
+        role: widget.role,
+      );
+
+      if (res.session != null) {
+        // Session created immediately — navigate by role
+        final displayRole = _getDisplayRole(widget.role);
+        _showAlert('Welcome $username! You are signed in as $displayRole.');
+
+        _navigateBasedOnRole(widget.role);
+      } else {
+        _showAlert('Signup successful! Please check your email for verification.');
+      }
+    } catch (e) {
+      _showAlert('Signup failed: ${e.toString()}');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _navigateBasedOnRole(String role) {
+    if (!mounted) return;
+
+    if (role == 'admin') {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const DashboardAD()),
+        (route) => false,
+      );
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => DashboardFG()),
+        (route) => false,
+      );
+    }
   }
 
   void _showAlert(String message) {
@@ -113,10 +148,11 @@ class _SignupViewState extends State<SignupView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Signup',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineSmall?.copyWith(color: Colors.white),
+                  'Signup as ${_getDisplayRole(widget.role)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(color: Colors.white),
                 ),
                 const SizedBox(height: 6),
                 const Text(
@@ -124,17 +160,9 @@ class _SignupViewState extends State<SignupView> {
                   style: TextStyle(color: Colors.white70),
                 ),
                 const SizedBox(height: 18),
-                _buildTextField(
-                  _usernameController,
-                  'Username',
-                  TextInputType.text,
-                ),
+                _buildTextField(_usernameController, 'Username', TextInputType.text),
                 const SizedBox(height: 12),
-                _buildTextField(
-                  _emailController,
-                  'Email',
-                  TextInputType.emailAddress,
-                ),
+                _buildTextField(_emailController, 'Email', TextInputType.emailAddress),
                 const SizedBox(height: 12),
                 _buildTextField(
                   _passwordController,
@@ -167,20 +195,22 @@ class _SignupViewState extends State<SignupView> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _handleSignup,
+                    onPressed: _isLoading ? null : _handleSignup,
                     style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12.0),
-                      child: Text(
-                        'Create Account',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                        ),
-                      ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.black)
+                          : const Text(
+                              'Create Account',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
+                            ),
                     ),
                   ),
                 ),
@@ -223,11 +253,9 @@ class _SignupViewState extends State<SignupView> {
       controller: controller,
       keyboardType: type,
       obscureText: obscure,
-      // This changes the color of the text the user types into the field
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: hint,
-        // This changes the color of the hint text
         hintStyle: const TextStyle(color: Colors.white70),
         filled: true,
         fillColor: Colors.white.withValues(alpha: 0.15),
@@ -235,12 +263,8 @@ class _SignupViewState extends State<SignupView> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 14,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         suffixIcon: suffix,
-        // This changes the color of the suffix icon
         suffixIconColor: Colors.white70,
       ),
     );
