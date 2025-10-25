@@ -357,6 +357,7 @@ class _LoginViewState extends State<LoginView> {
   bool _isLoading = false;
 
   final AuthService _authService = AuthService();
+  // ignore: unused_field
   late final SupabaseClient _client;
 
   @override
@@ -518,7 +519,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black.withOpacity(0.2),
+      color: Colors.black.withValues(alpha: 0.2),
       child: Align(
         alignment: Alignment.centerRight,
         child: Container(
@@ -526,7 +527,7 @@ class _LoginViewState extends State<LoginView> {
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.18),
+            color: Colors.white.withValues(alpha: 0.18),
             borderRadius: BorderRadius.circular(16),
           ),
           child: SingleChildScrollView(
@@ -656,7 +657,7 @@ class _LoginViewState extends State<LoginView> {
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.white70),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.15),
+        fillColor: Colors.white.withValues(alpha: 0.15),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,

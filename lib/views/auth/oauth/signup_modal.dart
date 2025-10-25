@@ -388,4 +388,3 @@ class _SignupViewState extends State<SignupView> {
 }
 
 
-// Please enter a valid or existing email domain
