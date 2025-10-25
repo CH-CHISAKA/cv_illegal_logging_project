@@ -483,12 +483,19 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
-  void _navigateBasedOnRole(String role) {
+  Future<void> _navigateBasedOnRole(String role) async {
     if (!mounted) return;
 
     if (role == 'admin') {
+      final profile = await _authService.fetchProfile();
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const DashboardAD()),
+        MaterialPageRoute(
+          builder: (_) => DashboardAD(
+            fullName: profile?['fullName'] ?? '',
+            initials: profile?['initials'] ?? '',
+            email: profile?['email'] ?? '',
+          ),
+        ),
         (route) => false,
       );
     } else if (role == 'forest-guard') {

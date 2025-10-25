@@ -1,62 +1,44 @@
 
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// ----------------------------
-/// AuthService: Handles Signup, Login, Logout, and Profile Fetching
-/// ----------------------------
 class AuthService {
+  static final AuthService instance = AuthService._internal();
+  factory AuthService() => instance;
+  AuthService._internal();
   final SupabaseClient _client = Supabase.instance.client;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  
+
+  String? fullName;
+  String? initials;
+  String? email;
 
   static const _rememberMeKey = 'remember_me';
   static const _refreshTokenKey = 'refresh_token';
 
-  /// ----------------------------
-  /// SIGN UP - Create a new user with email & password
-  /// ----------------------------
-  // Future<AuthResponse> signUp({
-  //   required String email,
-  //   required String password,
-  //   String? username,
-  //   String role = 'user',
-  // }) async {
-  //   return await _client.auth.signUp(
-  //     email: email,
-  //     password: password,
-  //     data: {'username': username ?? '', 'role': role}, // Supabase metadata
-  //   );
-  // }
+  // Sign Up
   Future<AuthResponse> signUp({
-  required String email,
-  required String password,
-  required String username,
-  required String role, // must be one of the allowed roles
-}) async {
-  // Validate the role explicitly
-  const allowedRoles = ['admin', 'forest-guard'];
-  if (!allowedRoles.contains(role)) {
-    throw ArgumentError('Invalid role: $role. Allowed roles are $allowedRoles');
+    required String email,
+    required String password,
+    required String username,
+    required String role,
+  }) async {
+    const allowedRoles = ['admin', 'forest-guard'];
+    if (!allowedRoles.contains(role)) {
+      throw ArgumentError(
+        'Invalid role: $role. Allowed roles are $allowedRoles',
+      );
+    }
+    final response = await _client.auth.signUp(
+      email: email,
+      password: password,
+      data: {'username': username, 'role': role},
+    );
+    return response;
   }
 
-  // Send signup request with guaranteed role in metadata
-  final response = await _client.auth.signUp(
-    email: email,
-    password: password,
-    data: {
-      'username': username,
-      'role': role, // guaranteed valid
-    },
-  );
-
-  return response;
-}
-
-
-  /// ----------------------------
-  /// SIGN IN - Standard email/password sign-in with optional remember me
-  /// ----------------------------
+  // Sign In
   Future<AuthResponse> signIn({
     required String email,
     required String password,
@@ -66,8 +48,6 @@ class AuthService {
       email: email,
       password: password,
     );
-
-    // Save "remember me" session token if applicable
     if (res.session != null && rememberMe) {
       await _storage.write(key: _rememberMeKey, value: 'true');
       await _storage.write(
@@ -78,14 +58,10 @@ class AuthService {
       await _storage.delete(key: _rememberMeKey);
       await _storage.delete(key: _refreshTokenKey);
     }
-
     return res;
   }
 
-  /// ----------------------------
-  /// SIMPLE SIGN-IN WRAPPER (returns bool)
-  /// Used by UI for success/fail logic
-  /// ----------------------------
+  // Simple sign-in wrapper
   Future<bool> signInWithEmailAndPassword({
     required String email,
     required String password,
@@ -98,18 +74,14 @@ class AuthService {
     return response.session != null;
   }
 
-  /// ----------------------------
-  /// SIGN OUT - End current session and clear stored data
-  /// ----------------------------
+  // Sign Out
   Future<void> signOut() async {
     await _client.auth.signOut();
     await _storage.delete(key: _rememberMeKey);
     await _storage.delete(key: _refreshTokenKey);
   }
 
-  /// ----------------------------
-  /// FETCH PROFILE - Returns user data from 'profiles' table
-  /// ----------------------------
+  // Fetch Profile
   Future<Map<String, dynamic>?> fetchProfile() async {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) return null;
@@ -120,30 +92,52 @@ class AuthService {
         .eq('id', uid)
         .maybeSingle();
 
+    print('Fetched profile: $response');
+
+    if (response != null) {
+      // Try full_name, fallback to username, fallback to email prefix
+      fullName = response['username'] ?? '';
+      if (fullName == null || fullName!.trim().isEmpty) {
+        fullName = response['email']?.split('@')[0] ?? '';
+      }
+
+      email = response['email'] ?? '';
+      initials = _getInitials(fullName!);
+    }
+
     return response;
   }
 
-  /// ----------------------------
-  /// RESTORE SESSION - Reauthenticate silently if "remember me" is set
-  /// ----------------------------
+  String _getInitials(String name) {
+    var parts = name.trim().split(' ');
+    if (parts.isNotEmpty) {
+      if (parts.length == 1 && parts[0].isNotEmpty) {
+        return parts[0].substring(0, 1).toUpperCase();
+      }
+      return parts
+          .where((e) => e.isNotEmpty)
+          .map((e) => e[0].toUpperCase())
+          .take(2)
+          .join();
+    }
+    return '';
+  }
+
+  // Restore Session
   Future<void> restoreSessionIfNeeded() async {
     final rememberMe = await _storage.read(key: _rememberMeKey);
     final refreshToken = await _storage.read(key: _refreshTokenKey);
-
     if (rememberMe == 'true' && refreshToken != null) {
       try {
         await _client.auth.setSession(refreshToken);
       } catch (e) {
-        // Clear invalid session tokens
         await _storage.delete(key: _rememberMeKey);
         await _storage.delete(key: _refreshTokenKey);
       }
     }
   }
 
-  /// ----------------------------
-  /// REMEMBER ME FLAG - Save or remove user preference
-  /// ----------------------------
+  // Remember Me Flag
   Future<void> setRememberMeFlag(bool remember) async {
     if (remember) {
       await _storage.write(key: _rememberMeKey, value: 'true');

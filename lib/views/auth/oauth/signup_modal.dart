@@ -76,7 +76,7 @@ class _SignupViewState extends State<SignupView> {
     // 2️⃣ Common typo suggestions
     const typoCorrections = {
       'gmai.com': 'gmail.com',
-      'gmial.com': 'gmail.com',
+      'gial.com': 'gmail.com',
       'hotnail.com': 'hotmail.com',
       'yaho.com': 'yahoo.com',
     };
@@ -170,7 +170,15 @@ class _SignupViewState extends State<SignupView> {
 
     if (role == 'admin') {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const DashboardAD()),
+        MaterialPageRoute(
+          builder: (_) => DashboardAD(
+            fullName: _usernameController.text.trim(),
+            initials: _usernameController.text.isNotEmpty
+                ? _usernameController.text.trim().substring(0, 1).toUpperCase()
+                : '',
+            email: _emailController.text.trim(),
+          ),
+        ),
         (route) => false,
       );
     } else {

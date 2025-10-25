@@ -1,7 +1,18 @@
+
 import 'package:flutter/material.dart';
 
 class Sidebar extends StatefulWidget {
-  const Sidebar({super.key});
+  final String fullName;
+  final String initials;
+  final String email;
+
+  const Sidebar({
+    super.key,
+    required this.fullName,
+    required this.initials,
+    required this.email,
+  });
+  
 
   @override
   _SidebarState createState() => _SidebarState();
@@ -18,13 +29,9 @@ class _SidebarState extends State<Sidebar> with SingleTickerProviderStateMixin {
     {'icon': Icons.bar_chart, 'title': 'Reports'},
   ];
 
-  // Example user info
-  final String fullName = "John Doe";
-  final String initials = "JD";
-  final String email = "jd@gmail.com";
-
   @override
   Widget build(BuildContext context) {
+      print('fullName: ${widget.fullName}, initials: ${widget.initials}, email: ${widget.email}');
     final sidebarWidth = _isExpanded ? 200.0 : 70.0;
     final sidebarHeight = _isExpanded ? 700.0 : 500.0;
 
@@ -37,7 +44,7 @@ class _SidebarState extends State<Sidebar> with SingleTickerProviderStateMixin {
           height: sidebarHeight,
           width: sidebarWidth,
           decoration: BoxDecoration(
-            color: Colors.black26.withOpacity(0.5),
+            color: Colors.black26.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
@@ -67,20 +74,14 @@ class _SidebarState extends State<Sidebar> with SingleTickerProviderStateMixin {
                         },
                       ),
                     ),
-
-                    // Space after toggle button
                     const SizedBox(height: 5),
-
-                    // Divider after Toggle 
                     if (_isExpanded)
                       const Divider(
                         color: Colors.white30,
                         thickness: 0.5,
                         height: 1,
                       ),
-
                     const SizedBox(height: 15),
-
                     // Menu items
                     ..._menuItems.asMap().entries.map((entry) {
                       final index = entry.key;
@@ -132,19 +133,15 @@ class _SidebarState extends State<Sidebar> with SingleTickerProviderStateMixin {
                           ),
                         ),
                       );
-                    }).toList(),
-
-                    // Space before divider
+                    }),
                     const SizedBox(height: 15),
-
-                    // Divider after menu items
+                    // After menu items divider
                     if (_isExpanded)
                       const Divider(
                         color: Colors.white30,
                         thickness: 1,
                         height: 1,
                       ),
-
                     // Logout option
                     GestureDetector(
                       onTap: () {
@@ -193,33 +190,29 @@ class _SidebarState extends State<Sidebar> with SingleTickerProviderStateMixin {
                     ),
                   ],
                 ),
-
                 // ========== BOTTOM USER SECTION ==========
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Divider on top
-                    Divider(
-                      color: Colors.white30, // semi-transparent white
+                    const Divider(
+                      color: Colors.white30,
                       thickness: 1,
-                      height: 1, // height of the line itself
+                      height: 1,
                     ),
-
-                    // Optional spacing between divider and user row
                     const SizedBox(height: 12),
-
-                    // Bottom user info row
+                    // User info row (initials, fullName, email)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Left side: initials
+                          // Left: initials
                           CircleAvatar(
-                            backgroundColor: Colors.white.withOpacity(0.3),
+                            backgroundColor: Colors.white.withValues(alpha: 0.3),
                             radius: 20,
                             child: Text(
-                              initials,
+                              widget.initials,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -227,11 +220,8 @@ class _SidebarState extends State<Sidebar> with SingleTickerProviderStateMixin {
                               ),
                             ),
                           ),
-
-                          // Space between avatar and text
                           if (_isExpanded) const SizedBox(width: 10),
-
-                          // Right side: full name + email
+                          // Right: fullName + email
                           if (_isExpanded)
                             Expanded(
                               child: Column(
@@ -239,7 +229,7 @@ class _SidebarState extends State<Sidebar> with SingleTickerProviderStateMixin {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    fullName,
+                                    widget.fullName,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: const TextStyle(
@@ -250,7 +240,7 @@ class _SidebarState extends State<Sidebar> with SingleTickerProviderStateMixin {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    email,
+                                    widget.email,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: const TextStyle(
